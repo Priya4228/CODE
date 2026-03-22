@@ -30,11 +30,3 @@ steps:
     checkForManuallyLinkedWI: False
     wiqlFromTarget: 'WorkItems'
 
-
-
-# 2️⃣ Publish the release notes as a build artifact
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)/ReleaseNotes.md'
-    artifactName: 'ReleaseNotes'
-  displayName: Publish Release Notes
