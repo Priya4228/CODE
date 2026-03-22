@@ -5,23 +5,32 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-
-# 1️⃣ Generate Release Notes
-- task: GenerateReleaseNotes@3
+- task: XplatGenerateReleaseNotes@4
   inputs:
-    outputfile: '$(Build.ArtifactStagingDirectory)/ReleaseNotes.md'
-    templateLocation: 'Inline'
-    inlineTemplate: |
+    outputfile: 'ReleaseNotes.md'
+    templateLocation: 'InLine'
+    inlinetemplate: |
       # Release Notes
-      ## Commits
-      {{#each commits}}
-      - {{this.message}}
-      {{/each}}
-      ## Work Items
-      {{#each workitems}}
-      - {{this.id}} {{this.fields['System.Title']}}
-      {{/each}}
-  displayName: Generate Release Notes
+            ## Commits
+            {{#each commits}}
+            - {{this.message}}
+            {{/each}}
+            ## Work Items
+            {{#each workitems}}
+            - {{this.id}} {{this.fields['System.Title']}}
+            {{/each}}
+    dumpPayloadToConsole: false
+    dumpPayloadToFile: false
+    replaceFile: True
+    getParentsAndChildren: False
+    getAllParents: False
+    getIndirectPullRequests: False
+    stopOnError: False
+    considerPartiallySuccessfulReleases: False
+    checkForManuallyLinkedWI: False
+    wiqlFromTarget: 'WorkItems'
+
+
 
 # 2️⃣ Publish the release notes as a build artifact
 - task: PublishBuildArtifacts@1
