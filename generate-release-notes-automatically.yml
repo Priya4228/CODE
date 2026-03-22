@@ -1,0 +1,33 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+# 1️⃣ Generate Release Notes
+- task: GenerateReleaseNotes@3
+  inputs:
+    outputfile: '$(Build.ArtifactStagingDirectory)/ReleaseNotes.md'
+    templateLocation: 'Inline'
+    inlineTemplate: |
+      # Release Notes
+      ## Commits
+      {{#each commits}}
+      - {{this.message}}
+      {{/each}}
+      ## Work Items
+      {{#each workitems}}
+      - {{this.id}} {{this.fields['System.Title']}}
+      {{/each}}
+  displayName: Generate Release Notes
+
+# 2️⃣ Publish the release notes as a build artifact
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)/ReleaseNotes.md'
+    artifactName: 'ReleaseNotes'
+  displayName: Publish Release Notes
