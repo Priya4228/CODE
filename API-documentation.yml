@@ -1,8 +1,5 @@
 # Pipeline to publish API documentation
 
-trigger:
-- main
-
 pool:
   vmImage: ubuntu-latest
 
