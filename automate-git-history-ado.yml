@@ -1,0 +1,21 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: |
+    echo "Generating release notes..."
+    git log --pretty=format:"- %s" > release-notes.txt
+  displayName: 'Generate release notes'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'release-notes.txt'
+    artifactName: 'ReleaseNotes'
