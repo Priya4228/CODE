@@ -1,0 +1,20 @@
+# Starter pipeline
+# fetchDeph = make sure you can see all my commit history from repo
+
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+  fetchDepth: 0
+
+- script: |
+    echo "Generating release notes..."
+    git log --pretty=format:"- %s" > release-notes.txt
+  displayName: 'Generate release notes'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'release-notes.txt'
+    artifactName: 'ReleaseNotes'

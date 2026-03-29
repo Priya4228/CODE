@@ -1,0 +1,77 @@
+# Pipeline to create webapp, build, deploy, and reminder
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+# ===============================
+# Stage 1: Create Web App
+# ===============================
+- stage: CreateWebApp
+  displayName: Create Web App on Azure
+  jobs:
+  - job: CreateApp
+    displayName: Create app via CLI
+    steps:
+    - task: AzureCLI@2
+      displayName: "Create Web App if not exists"
+      inputs:
+        azureSubscription: SPN-Dev-01
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          if az webapp show --name flaskappgmd28 --resource-group AZ400-play &>/dev/null; then
+              echo "Web app already exists, skipping creation"
+          else
+              az webapp create --resource-group AZ400-play --plan ASP-AzureAppIncidentProjectgroup-8d3f --name flaskappgmd28 --runtime "PYTHON:3.10"
+          fi
+
+# ===============================
+# Stage 2: Build Python App
+# ===============================
+- stage: BuildApp
+  displayName: 'Build Python Stage'
+  dependsOn: CreateWebApp
+  jobs:
+  - job: BuildAppOnDevops
+    displayName: 'Build App on DevOps'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.10'  
+        addToPath: true
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      displayName: 'Install dependencies'
+
+# ===============================
+# Stage 3: Deploy App
+# ===============================
+- stage: DeployApp
+  displayName: 'Deploy App Stage'
+  dependsOn: BuildApp
+  jobs:
+  - job: DeployToAzure 
+    displayName: 'Deploy Build App to Azure'
+    steps:
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: SPN-Dev-01
+        appType: webApp 
+        appName: flaskappgmd28 
+        package: '$(System.DefaultWorkingDirectory)'
+        startupCommand: 'gunicorn --bind 0.0.0.0:8000 app:app'
+
+# ===============================
+# Stage 4: Reminder
+# ===============================
+- stage: ReminderToDelete
+  displayName: 'Reminder to delete'
+  dependsOn: DeployApp
+  jobs:
+  - job: Reminder
+    displayName: 'Text reminder'
+    steps:
+    - script: |
+        echo "Delete or at least stop"

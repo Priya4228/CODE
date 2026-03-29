@@ -1,0 +1,30 @@
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: XplatGenerateReleaseNotes@4
+  inputs:
+    outputfile: 'ReleaseNotes.md'
+    templateLocation: 'InLine'
+    inlinetemplate: |
+      # Release Notes
+            ## Commits
+            {{#each commits}}
+            - {{this.message}}
+            {{/each}}
+            ## Work Items
+            {{#each workitems}}
+            - {{this.id}} {{this.fields['System.Title']}}
+            {{/each}}
+    dumpPayloadToConsole: false
+    dumpPayloadToFile: false
+    replaceFile: True
+    getParentsAndChildren: False
+    getAllParents: False
+    getIndirectPullRequests: False
+    stopOnError: False
+    considerPartiallySuccessfulReleases: False
+    checkForManuallyLinkedWI: False
+    wiqlFromTarget: 'WorkItems'
+

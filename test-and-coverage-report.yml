@@ -1,0 +1,36 @@
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+- job: TestAndCoverage
+  displayName: 'Run Python Tests and collect Coverage'
+  strategy:
+    matrix:
+      Python38:
+        python.version: '3.8'
+      Python39:
+        python.version: '3.9'
+  steps:
+    # Install Python and the coverage checker
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+      displayName: 'Install dependencies'
+
+    # Run tests and collect coverage
+    - script: |
+        pytest --cov=. --cov-report=xml
+      displayName: 'Run Tests and Coverage'
+
+    # Publish coverage results
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: 'coverage.xml'
+      displayName: 'Publish Code Coverage to ADO'

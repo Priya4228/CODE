@@ -1,0 +1,17 @@
+# Pipeline to publish API documentation
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- script: |
+    npm install -g redoc-cli
+    redoc-cli build swagger.json -o api-docs.html
+  displayName: Generate API Documentation
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'api-docs.html'
+    artifactName: 'api-docs'
+  displayName: Publish API Docs

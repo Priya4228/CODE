@@ -1,0 +1,108 @@
+
+variables:
+  resourceGroup: my-sql-rg
+  location: uksouth
+  sqlServer: mysqlserver12345
+  sqlDatabase: mydatabase
+  adminUser: sqladmin
+  adminPassword: $(SQL_ADMIN_PASSWORD)
+  dacpacPath: $(Build.SourcesDirectory)/database/database.dacpac
+
+stages:
+- stage: DeploySQL
+  jobs:
+
+  - job: CheckResourceGroup
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'SPN-Dev-01'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          if az group exists --name $(resourceGroup); then
+            echo "Resource Group already exists"
+          else
+            az group create --name $(resourceGroup) --location $(location)
+          fi
+
+  - job: CheckSQLServer
+    dependsOn: CheckResourceGroup
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'SPN-Dev-01'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          if az sql server show --name $(sqlServer) --resource-group $(resourceGroup) > /dev/null 2>&1; then
+            echo "SQL Server already exists"
+          else
+            az sql server create \
+              --name $(sqlServer) \
+              --resource-group $(resourceGroup) \
+              --location $(location) \
+              --admin-user $(adminUser) \
+              --admin-password $(adminPassword)
+          fi
+
+  - job: CheckDatabase
+    dependsOn: CheckSQLServer
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'SPN-Dev-01'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          if az sql db show --name $(sqlDatabase) --server $(sqlServer) --resource-group $(resourceGroup) > /dev/null 2>&1; then
+            echo "Database already exists"
+          else
+            az sql db create \
+              --resource-group $(resourceGroup) \
+              --server $(sqlServer) \
+              --name $(sqlDatabase) \
+              --service-objective S0
+          fi
+
+  - job: ConfigureFirewall
+    dependsOn: CheckDatabase
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'SPN-Dev-01'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az sql server firewall-rule create \
+            --resource-group $(resourceGroup) \
+            --server $(sqlServer) \
+            --name AllowAllAzureIPs \
+            --start-ip-address 0.0.0.0 \
+            --end-ip-address 0.0.0.0
+
+  - job: DeployDacpac
+    dependsOn: ConfigureFirewall
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: SqlAzureDacpacDeployment@1
+      displayName: Deploy DACPAC
+      inputs:
+        azureSubscription: 'SPN-Dev-01'
+        AuthenticationType: server
+        ServerName: $(sqlServer).database.windows.net
+        DatabaseName: $(sqlDatabase)
+        SqlUsername: $(adminUser)
+        SqlPassword: $(adminPassword)
+        deployType: DacpacTask
+        DeploymentAction: Publish
+        DacpacFile: $(dacpacPath)

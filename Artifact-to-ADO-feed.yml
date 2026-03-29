@@ -1,0 +1,48 @@
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  feedName: 'Test-feed'          # <-- Replace with your Azure Artifacts feed
+  packageName: 'flask-sample-app'   # <-- Name for the universal package
+  packageVersion: '1.0.$(Build.BuildId)'
+
+steps:
+
+# 1️⃣ Checkout your GitHub repo
+- checkout: self
+  displayName: 'Checkout repository'
+
+# 2️⃣ Optional: Debug repo contents
+- script: |
+    echo "Repo root: $(Build.SourcesDirectory)"
+    echo "Contents:"
+    ls -la $(Build.SourcesDirectory)
+  displayName: 'List repo root contents'
+
+# 3️⃣ Ensure artifact staging directory exists
+- script: mkdir -p $(Build.ArtifactStagingDirectory)
+  displayName: 'Ensure artifact staging directory exists'
+
+# 4️⃣ Archive the entire repo into a zip
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)'      # <-- This is the correct folder
+    includeRootFolder: false                            # <-- Include only contents
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/flask-app.zip'
+    replaceExistingArchive: true
+  displayName: 'Archive repository'
+
+# 5️⃣ Publish the zip as a Universal Package
+- task: UniversalPackages@0
+  inputs:
+    command: publish
+    publishDirectory: '$(Build.ArtifactStagingDirectory)'
+    feedsToUsePublish: 'internal'
+    vstsFeedPublish: 'DevOpsAZ400 Pratice (Agile one)/Test-Feed'
+    vstsFeedPackagePublish: '$(packageName)'
+    versionOption: 'custom'
+    versionPublish: '$(packageVersion)'
+    packagePublishDescription: 'Simple Flask sample app packaged as Universal Package'
+  displayName: 'Publish Universal Package'
