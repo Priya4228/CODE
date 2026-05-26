@@ -3,16 +3,16 @@ trigger:
 
 variables:
   # Azure Resource Manager connection created during pipeline creation
-  azureServiceConnectionId: '<GUID>'
+  azureServiceConnectionId: '01fcb7bf-3c1d-44ee-9116-c74c89bb26db'
 
   # Web app name
-  webAppName: '<your-webapp-name>'
+  webAppName: 'abhiappPY'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
   # Environment name
-  environmentName: '<your-webapp-name>'
+  environmentName: 'abhiappPY'
 
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
