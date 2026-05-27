@@ -1,0 +1,17 @@
+[33mcommit ca93958802b25974073c523bb3867731981d0b3f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/dev[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mtest[m[33m, [m[1;32mdev[m[33m)[m
+Author: Abhishek <cse.abhishek.3@gmail.com>
+Date:   Tue May 19 05:59:41 2026 +0000
+
+    Made changes in note.txt file
+
+[33mcommit 72c4f94a449759d6d7e25e7b8f33e8738faaeace[m
+Author: Abhishek <cse.abhishek.3@gmail.com>
+Date:   Tue May 19 05:52:37 2026 +0000
+
+    Setting up Platform
+
+[33mcommit 3ec51231c91012ae805632d87be697d25fd64b41[m
+Author: Abhishek <cse.abhishek.3@gmail.com>
+Date:   Fri May 15 01:17:14 2026 +0530
+
+    Initial commit

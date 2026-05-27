@@ -1,1 +1,5 @@
-Flask
+Flask==3.0.0
+Werkzeug==3.0.1
+azure-cli==2.60.0
+pytest==8.2.0
+requests==2.31.0
