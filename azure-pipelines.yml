@@ -14,6 +14,7 @@ variables:
   # Environment name
   environmentName: 'abhiappPY'
 
+
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
 
@@ -53,6 +54,8 @@ stages:
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
       artifact: drop
+
+
 
 - stage: Deploy
   displayName: 'Deploy Web App'
